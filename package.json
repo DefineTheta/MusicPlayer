@@ -17,7 +17,8 @@
 		"package:dist": "electron-builder --dir",
 		"test": "jest",
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-		"typeorm:migrate": "typeorm migration:run"
+		"typeorm:migrate": "typeorm migration:run",
+		"typeorm:reset": "typeorm schema:drop"
 	},
 	"keywords": [],
 	"author": "Diego Fernandes <diego.schell.f@gmail.com>",
