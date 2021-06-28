@@ -16,6 +16,7 @@
 		"esModuleInterop": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
+		"strictPropertyInitialization": false,
 		"paths": {
 			"@/*": ["src/*"],
 			"#/*": ["electron/*"]
