@@ -28,11 +28,15 @@ const dbPath =
 		? process.env.ROOT_PATH + process.env.DEV_DB_PATH
 		: app.getPath('userData') + process.env.PROD_DB_PATH;
 
+// console.log(path.resolve(__dirname, 'db/**/*.js'));
+console.log(process.env.ROOT_PATH + '/electron/models/*.ts');
+
 const db = new DatabaseManager({
 	type: 'sqlite',
 	database: dbPath,
-	entities: [path.resolve(__dirname, '../models/*.ts')],
-	logging: false,
+	entities: [path.resolve(__dirname, 'db/*.js')],
+	logging: process.env.NODE_ENV === 'development',
+	synchronize: true,
 });
 
 export default db;

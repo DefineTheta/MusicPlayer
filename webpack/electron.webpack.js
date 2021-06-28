@@ -1,4 +1,5 @@
 const path = require('path');
+const glob = require('glob');
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin').TsconfigPathsPlugin;
@@ -11,8 +12,8 @@ module.exports = {
 		plugins: [new TsconfigPathsPlugin()],
 	},
 	devtool: 'source-map',
+	entry: entryPaths,
 	entry: path.resolve(rootPath, 'electron', 'main.ts'),
-	target: 'electron-main',
 	module: {
 		rules: [
 			{

@@ -11,8 +11,8 @@ export class BaseEntity {
 	id: number;
 
 	@CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-	createDateTime: Date;
+	createdAt: Date;
 
 	@UpdateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-	updateDateTime: Date;
+	updatedAt: Date;
 }
