@@ -2,7 +2,10 @@ import React from 'react';
 import { render } from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import Greetings from './components/Greetings';
+import SideBar from '@/components/SideBar';
+import BottomBar from '@/components/BottomBar';
+
+import AlbumsPage from '@/pages/Albums';
 
 import './styles/main.scss';
 
@@ -12,9 +15,17 @@ document.body.appendChild(mainElement);
 
 const App = () => {
 	return (
-		<Router>
-			<Greetings />
-		</Router>
+		<>
+			<div className='w-full h-full grid app app-container'>
+				<SideBar />
+				<Router>
+					<div className='row-start-1 col-start-2 bg-black-dark'>
+						<AlbumsPage />
+					</div>
+				</Router>
+				<BottomBar />
+			</div>
+		</>
 	);
 };
 
