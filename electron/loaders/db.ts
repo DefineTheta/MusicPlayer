@@ -1,5 +1,6 @@
 import { createConnection, ConnectionOptions, Connection } from 'typeorm';
 import { app } from 'electron';
+import path from 'path';
 
 class DatabaseManager {
 	#connection!: Connection;
@@ -30,6 +31,7 @@ const dbPath =
 const db = new DatabaseManager({
 	type: 'sqlite',
 	database: dbPath,
+	entities: [path.resolve(__dirname, '../models/*.ts')],
 	logging: false,
 });
 
