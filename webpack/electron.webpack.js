@@ -12,8 +12,8 @@ module.exports = {
 		plugins: [new TsconfigPathsPlugin()],
 	},
 	devtool: 'source-map',
-	entry: entryPaths,
 	entry: path.resolve(rootPath, 'electron', 'main.ts'),
+	target: 'electron-main',
 	module: {
 		rules: [
 			{

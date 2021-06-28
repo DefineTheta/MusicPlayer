@@ -16,7 +16,8 @@
 		"package": "npm-run-all build package:dist",
 		"package:dist": "electron-builder --dir",
 		"test": "jest",
-		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js"
+		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+		"typeorm:migrate": "typeorm migration:run"
 	},
 	"keywords": [],
 	"author": "Diego Fernandes <diego.schell.f@gmail.com>",

@@ -78,8 +78,9 @@ typings/
 # Complied distribution files
 dist/
 
-# SQLite Databse files
-db/
+# SQLite Databse files except migrations
+db/*
+!db/migrations/
 
 # Packaged electron app
 packages/
