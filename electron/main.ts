@@ -8,6 +8,8 @@ import installExtension, {
 import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
 
+import TestRun from './test';
+
 let mainWindow: Electron.BrowserWindow | null;
 
 function createWindow() {
@@ -51,5 +53,7 @@ app
 		}
 
 		await DatabaseManager.init();
+
+		await TestRun();
 	});
 app.allowRendererProcessReuse = true;

@@ -4,7 +4,7 @@ import { Artist } from './artist.entity';
 
 @Entity()
 export class Album extends BaseEntity {
-	@Column()
+	@Column({ type: 'varchar' })
 	name: string;
 
 	@Column({ type: 'date' })

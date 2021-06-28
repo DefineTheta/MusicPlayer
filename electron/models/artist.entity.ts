@@ -4,7 +4,7 @@ import { Album } from './album.entity';
 
 @Entity()
 export class Artist extends BaseEntity {
-	@Column()
+	@Column({ type: 'varchar' })
 	name: string;
 
 	@ManyToMany(() => Album, (album) => album.artists)
