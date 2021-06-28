@@ -18,6 +18,7 @@
 		"test": "jest",
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
 		"typeorm:migrate": "typeorm migration:run",
+		"typeorm:revert": "typeorm migration:revert",
 		"typeorm:reset": "typeorm schema:drop"
 	},
 	"keywords": [],
