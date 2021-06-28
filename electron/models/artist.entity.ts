@@ -8,6 +8,6 @@ export class Artist extends BaseEntity {
 	name: string;
 
 	@ManyToMany(() => Album, (album) => album.artists)
-	@JoinTable()
+	@JoinTable({ name: 'artist_album' })
 	albums: Album[];
 }

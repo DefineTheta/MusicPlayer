@@ -4,7 +4,7 @@ module.exports = class CreateArtistAlbumJoinTable1624883437919 {
 	async up(queryRunner) {
 		await queryRunner.createTable(
 			new Table({
-				name: 'artist_albums_album',
+				name: 'artist_album',
 				columns: [
 					{
 						name: 'artistId',
@@ -21,7 +21,7 @@ module.exports = class CreateArtistAlbumJoinTable1624883437919 {
 		);
 
 		await queryRunner.createForeignKey(
-			'artist_albums_album',
+			'artist_album',
 			new TableForeignKey({
 				columnNames: ['artistId'],
 				referencedColumnNames: ['id'],
@@ -31,7 +31,7 @@ module.exports = class CreateArtistAlbumJoinTable1624883437919 {
 		);
 
 		await queryRunner.createForeignKey(
-			'artist_albums_album',
+			'artist_album',
 			new TableForeignKey({
 				columnNames: ['albumId'],
 				referencedColumnNames: ['id'],
@@ -42,12 +42,12 @@ module.exports = class CreateArtistAlbumJoinTable1624883437919 {
 	}
 
 	async down(queryRunner) {
-		const table = await queryRunner.getTable('artist_albums_album');
+		const table = await queryRunner.getTable('artist_album');
 		const foreignKeys = ['artistId', 'albumId'].map((columnName) => {
 			return table.foreignKeys.find((fk) => fk.columnNames.indexOf(columnName) !== -1);
 		});
 
-		await queryRunner.dropForeignKeys('artist_albums_album', foreignKeys);
-		await queryRunner.dropTable('artist_albums_album');
+		await queryRunner.dropForeignKeys('artist_album', foreignKeys);
+		await queryRunner.dropTable('artist_album');
 	}
 };
