@@ -7,7 +7,8 @@ import installExtension, {
 } from 'electron-devtools-installer';
 import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
-import { getFilePaths } from './helpers/fs';
+import { getFilesWithExt } from './helpers/fs';
+import { parseMusicFiles } from './helpers/music';
 
 let mainWindow: Electron.BrowserWindow | null;
 
@@ -42,7 +43,9 @@ async function createWindow() {
 		properties: ['openDirectory'],
 	});
 
-	await getFilePaths(paths.filePaths[0], ['mp3', 'wav', 'flac']);
+	if (!paths.canceled) {
+		await parseMusicFiles(paths.filePaths[0]);
+	}
 }
 
 app
