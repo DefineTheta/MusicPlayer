@@ -11,6 +11,9 @@ export class Album extends BaseEntity {
 	@Column({ type: 'date' })
 	releaseDate: Date;
 
+	@Column({ type: 'text' })
+	coverImagePath: string;
+
 	@OneToMany(() => Song, (song) => song.album)
 	songs: Song[];
 

@@ -22,6 +22,10 @@ module.exports = class CreateAlbumTable1624880285324 {
 						type: 'date',
 					},
 					{
+						name: 'cover_image_path',
+						type: 'text',
+					},
+					{
 						name: 'created_at',
 						type: 'datetime',
 						default: 'CURRENT_TIMESTAMP',
