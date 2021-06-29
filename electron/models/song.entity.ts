@@ -7,7 +7,7 @@ export class Song extends BaseEntity {
 	@Column({ type: 'varchar' })
 	title: string;
 
-	@Column()
+	@Column({ type: 'integer' })
 	albumPosition: number;
 
 	@Column({ type: 'text' })

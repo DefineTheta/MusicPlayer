@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import installExtension, {
@@ -7,18 +7,18 @@ import installExtension, {
 } from 'electron-devtools-installer';
 import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
-
-import TestRun from './test';
+import { getFilePaths } from './helpers/fs';
 
 let mainWindow: Electron.BrowserWindow | null;
 
-function createWindow() {
+async function createWindow() {
 	mainWindow = new BrowserWindow({
 		width: 1280,
 		height: 720,
 		backgroundColor: '#121212',
 		webPreferences: {
 			nodeIntegration: true,
+			enableRemoteModule: true,
 		},
 	});
 
@@ -37,6 +37,12 @@ function createWindow() {
 	mainWindow.on('closed', () => {
 		mainWindow = null;
 	});
+
+	const paths = await dialog.showOpenDialog(mainWindow, {
+		properties: ['openDirectory'],
+	});
+
+	await getFilePaths(paths.filePaths[0], ['mp3', 'wav', 'flac']);
 }
 
 app
@@ -53,7 +59,5 @@ app
 		}
 
 		await DatabaseManager.init();
-
-		await TestRun();
 	});
 app.allowRendererProcessReuse = true;
