@@ -1,5 +1,11 @@
 import { createConnection, ConnectionOptions, Connection } from 'typeorm';
 import { app } from 'electron';
+import path from 'path';
+
+// Import database table entities to register with TypeORM
+import { Album } from '#/models/album.entity';
+import { Artist } from '#/models/artist.entity';
+import { Song } from '#/models/song.entity';
 
 class DatabaseManager {
 	#connection!: Connection;
@@ -30,7 +36,9 @@ const dbPath =
 const db = new DatabaseManager({
 	type: 'sqlite',
 	database: dbPath,
-	logging: false,
+	entities: [Album, Artist, Song],
+	logging: process.env.NODE_ENV === 'development',
+	synchronize: true,
 });
 
 export default db;
