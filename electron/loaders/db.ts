@@ -1,8 +1,11 @@
 import { createConnection, ConnectionOptions, Connection } from 'typeorm';
 import { app } from 'electron';
 import path from 'path';
+
+// Import database table entities to register with TypeORM
 import { Album } from '#/models/album.entity';
 import { Artist } from '#/models/artist.entity';
+import { Song } from '#/models/song.entity';
 
 class DatabaseManager {
 	#connection!: Connection;
@@ -30,13 +33,10 @@ const dbPath =
 		? process.env.ROOT_PATH + process.env.DEV_DB_PATH
 		: app.getPath('userData') + process.env.PROD_DB_PATH;
 
-// console.log(path.resolve(__dirname, 'db/**/*.js'));
-// console.log(process.env.ROOT_PATH + '/electron/models/*.ts');
-
 const db = new DatabaseManager({
 	type: 'sqlite',
 	database: dbPath,
-	entities: [Album, Artist],
+	entities: [Album, Artist, Song],
 	logging: process.env.NODE_ENV === 'development',
 	synchronize: true,
 });

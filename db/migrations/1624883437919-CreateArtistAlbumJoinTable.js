@@ -1,4 +1,5 @@
-const { Table, TableForeignKey } = require('typeorm');
+const { Table } = require('typeorm');
+const { createForeignKeys, deleteForeignKeys } = require('../helpers/util');
 
 module.exports = class CreateArtistAlbumJoinTable1624883437919 {
 	async up(queryRunner) {
@@ -20,34 +21,20 @@ module.exports = class CreateArtistAlbumJoinTable1624883437919 {
 			})
 		);
 
-		await queryRunner.createForeignKey(
-			'artist_album',
-			new TableForeignKey({
-				columnNames: ['artistId'],
-				referencedColumnNames: ['id'],
-				referencedTableName: 'artist',
-				onDelete: 'CASCADE',
-			})
-		);
-
-		await queryRunner.createForeignKey(
-			'artist_album',
-			new TableForeignKey({
-				columnNames: ['albumId'],
-				referencedColumnNames: ['id'],
-				referencedTableName: 'album',
-				onDelete: 'CASCADE',
-			})
-		);
+		await createForeignKeys(queryRunner, 'artist_album', [
+			{
+				column: 'artistId',
+				table: 'artist',
+			},
+			{
+				column: 'albumId',
+				table: 'album',
+			},
+		]);
 	}
 
 	async down(queryRunner) {
-		const table = await queryRunner.getTable('artist_album');
-		const foreignKeys = ['artistId', 'albumId'].map((columnName) => {
-			return table.foreignKeys.find((fk) => fk.columnNames.indexOf(columnName) !== -1);
-		});
-
-		await queryRunner.dropForeignKeys('artist_album', foreignKeys);
+		await deleteForeignKeys(queryRunner, 'artist_album', ['artistId', 'albumId']);
 		await queryRunner.dropTable('artist_album');
 	}
 };
