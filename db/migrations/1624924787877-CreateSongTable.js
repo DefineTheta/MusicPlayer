@@ -19,6 +19,10 @@ module.exports = class CreateSongTable1624924787877 {
 						type: 'integer',
 					},
 					{
+						name: 'album_position',
+						type: 'integer',
+					},
+					{
 						name: 'title',
 						type: 'varchar',
 					},
