@@ -55,7 +55,7 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 	const artistRepository = connection.getRepository(Artist);
 	const songRepository = connection.getRepository(Song);
 
-	const artists: { [key: string]: Artist } = {};
+	const artistEntities: { [key: string]: Artist } = {};
 
 	const filePaths = await getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
 	const albumsData: { [key: string]: IAlbumData } = {};
@@ -85,6 +85,7 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 	for (let i = 0; i < albumsDataKeys.length; i++) {
 		const albumName = albumsDataKeys[i];
 		const albumData = albumsData[albumName];
+		const albumArtistEntity = artistEntities[albumData.artist];
 
 		// TODO Have proper checking if properties actually exist
 		// TODO Have proper album cover art path
@@ -94,8 +95,30 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		album.coverImagePath = '';
 		await albumRepository.save(album);
 
+		/** Insert album artist */
+		// Check if we have the artist object already
+		if (albumArtistEntity === undefined) {
+			// Try to find the artist if it exists
+			let artist = await artistRepository.findOne({ where: { name: albumData.artist } });
+
+			if (artist === undefined) {
+				artist = new Artist();
+				artist.name = albumData.artist;
+				artist.albums = [album];
+			} else {
+				artist.albums.push(album);
+			}
+
+			await artistRepository.save(artist);
+			artistEntities[albumData.artist] = artist;
+		} else {
+			albumArtistEntity.albums.push(album);
+			await artistRepository.save(albumArtistEntity);
+		}
+
 		for (let j = 0; j < albumData.songs.length; j++) {
 			const songData = albumData.songs[j];
+			const songArtists: Artist[] = [];
 
 			const song = new Song();
 			song.title = songData.title;
