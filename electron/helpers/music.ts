@@ -7,32 +7,45 @@ import { Artist } from '#/models/artist.entity';
 import { Song } from '#/models/song.entity';
 
 export interface ISongData {
-	title: string | undefined;
-	albumName: string | undefined;
-	albumArtist: string | undefined;
-	albumReleaseDate: string | undefined;
-	trackPosition: number | null;
-	date: string | undefined;
+	title: string;
+	albumName: string;
+	albumArtist: string;
+	albumReleaseDate: string;
+	trackPosition: number;
+	songArtists: string[];
+	date: string;
 	path?: string;
 }
 
 export interface IAlbumData {
-	artist: string | undefined;
-	releaseDate: string | undefined;
+	artist: string;
+	releaseDate: string;
 	songs: ISongData[];
 }
+
+export const parseArtistName = (arr: string[]): string[] => {
+	const artists: string[] = [];
+
+	for (let i = 0; i < arr.length; i++) {
+		const allArtist = arr[i].split('; ');
+		allArtist.forEach((artist) => artists.push(artist));
+	}
+
+	return artists;
+};
 
 // TODO: Have a seperate album artist and song artist
 export const getSongMetadata = async (filePath: string): Promise<ISongData> => {
 	const metadata = await parseFile(filePath);
 
 	return {
-		title: metadata.common.title,
-		albumName: metadata.common.album,
-		albumArtist: metadata.common.albumartist,
-		albumReleaseDate: metadata.common.date,
-		trackPosition: metadata.common.track.no,
-		date: metadata.common.date,
+		title: metadata.common.title as string,
+		albumName: metadata.common.album as string,
+		albumArtist: metadata.common.albumartist as string,
+		albumReleaseDate: metadata.common.date as string,
+		trackPosition: metadata.common.track.no as number,
+		songArtists: parseArtistName(metadata.common.artists as string[]),
+		date: metadata.common.date as string,
 	};
 };
 
@@ -41,6 +54,8 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 	const albumRepository = connection.getRepository(Album);
 	const artistRepository = connection.getRepository(Artist);
 	const songRepository = connection.getRepository(Song);
+
+	const artists: { [key: string]: Artist } = {};
 
 	const filePaths = await getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
 	const albumsData: { [key: string]: IAlbumData } = {};
@@ -75,8 +90,19 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		// TODO Have proper album cover art path
 		const album = new Album();
 		album.name = albumName;
-		album.releaseDate = new Date(albumData.releaseDate as string);
+		album.releaseDate = new Date(albumData.releaseDate);
 		album.coverImagePath = '';
 		await albumRepository.save(album);
+
+		for (let j = 0; j < albumData.songs.length; j++) {
+			const songData = albumData.songs[j];
+
+			const song = new Song();
+			song.title = songData.title;
+			song.albumPosition = songData.trackPosition;
+			song.path = songData.path as string;
+			song.album = album;
+			await songRepository.save(song);
+		}
 	}
 };
