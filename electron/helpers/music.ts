@@ -1,4 +1,5 @@
 import { parseFile } from 'music-metadata';
+import colors from 'colors';
 import { getFilesWithExt } from './fs';
 
 import DatabaseManager from '#/loaders/db';
@@ -111,21 +112,8 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 
 		for (let j = 0; j < albumData.songs.length; j++) {
 			const songData = albumData.songs[j];
-			console.log(songData.title);
-			const songArtists: Artist[] = [];
-
-			for (let k = 0; k < songData.songArtists.length; k++) {
-				const songArtistName = songData.songArtists[k];
-				let songArtistEntity = artistEntities[songArtistName];
-
-				if (songArtistEntity === undefined) {
-					songArtistEntity = await artistRepository.createWithData({
-						name: songArtistName,
-					});
-				}
-
-				songArtists.push(songArtistEntity);
-			}
+			console.log(colors.red(songData.title));
+			console.log(colors.blue(songData.songArtists.join(', ')));
 
 			// TODO Check if the song already exists
 			const song = new Song();
@@ -133,10 +121,24 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 			song.albumPosition = songData.trackPosition;
 			song.path = songData.path as string;
 			song.album = album;
-			song.artists = songArtists;
 			await songRepository.save(song);
 
-			console.log(song);
+			for (let k = 0; k < songData.songArtists.length; k++) {
+				const songArtistName = songData.songArtists[k];
+				console.log(colors.green(songArtistName));
+				let songArtistEntity = artistEntities[songArtistName];
+
+				if (songArtistEntity === undefined) {
+					songArtistEntity = await artistRepository.createWithData({
+						name: songArtistName,
+						songs: [song],
+					});
+				} else {
+					songArtistEntity = await artistRepository.addSong(songArtistEntity, song);
+				}
+
+				artistEntities[songArtistName] = songArtistEntity;
+			}
 		}
 	}
 };
