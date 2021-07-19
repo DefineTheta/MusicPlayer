@@ -41,7 +41,8 @@
 		"react-hooks/rules-of-hooks": "error",
 		"react-hooks/exhaustive-deps": "warn",
 		"import/extensions": "off",
-		"prettier/prettier": "error"
+		"prettier/prettier": "error",
+		"no-unneeded-ternary": "off"
 	},
 	"settings": {
 		"import/resolver": {

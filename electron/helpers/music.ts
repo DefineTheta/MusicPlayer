@@ -5,6 +5,7 @@ import DatabaseManager from '#/loaders/db';
 import { Album } from '#/models/album.entity';
 import { Artist } from '#/models/artist.entity';
 import { Song } from '#/models/song.entity';
+import { ArtistRepository } from '#/repositories/artist.repository';
 
 export interface ISongData {
 	title: string;
@@ -52,9 +53,10 @@ export const getSongMetadata = async (filePath: string): Promise<ISongData> => {
 export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 	const connection = DatabaseManager.connection;
 	const albumRepository = connection.getRepository(Album);
-	const artistRepository = connection.getRepository(Artist);
+	const artistRepository = connection.getCustomRepository(ArtistRepository);
 	const songRepository = connection.getRepository(Song);
 
+	// A local cache of all new and searched artists
 	const artistEntities: { [key: string]: Artist } = {};
 
 	const filePaths = await getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
@@ -85,7 +87,7 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 	for (let i = 0; i < albumsDataKeys.length; i++) {
 		const albumName = albumsDataKeys[i];
 		const albumData = albumsData[albumName];
-		const albumArtistEntity = artistEntities[albumData.artist];
+		let albumArtistEntity: Artist | undefined = artistEntities[albumData.artist];
 
 		// TODO Have proper checking if properties actually exist
 		// TODO Have proper album cover art path
@@ -96,36 +98,45 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		await albumRepository.save(album);
 
 		/** Insert album artist */
-		// Check if we have the artist object already
 		if (albumArtistEntity === undefined) {
-			// Try to find the artist if it exists
-			let artist = await artistRepository.findOne({ where: { name: albumData.artist } });
-
-			if (artist === undefined) {
-				artist = new Artist();
-				artist.name = albumData.artist;
-				artist.albums = [album];
-			} else {
-				artist.albums.push(album);
-			}
-
-			await artistRepository.save(artist);
-			artistEntities[albumData.artist] = artist;
+			albumArtistEntity = await artistRepository.appendOrCreate({
+				name: albumData.artist,
+				albums: [album],
+			});
 		} else {
-			albumArtistEntity.albums.push(album);
-			await artistRepository.save(albumArtistEntity);
+			albumArtistEntity = await artistRepository.addAlbum(albumArtistEntity, album);
 		}
+
+		artistEntities[albumData.artist] = albumArtistEntity;
 
 		for (let j = 0; j < albumData.songs.length; j++) {
 			const songData = albumData.songs[j];
+			console.log(songData.title);
 			const songArtists: Artist[] = [];
 
+			for (let k = 0; k < songData.songArtists.length; k++) {
+				const songArtistName = songData.songArtists[k];
+				let songArtistEntity = artistEntities[songArtistName];
+
+				if (songArtistEntity === undefined) {
+					songArtistEntity = await artistRepository.createWithData({
+						name: songArtistName,
+					});
+				}
+
+				songArtists.push(songArtistEntity);
+			}
+
+			// TODO Check if the song already exists
 			const song = new Song();
 			song.title = songData.title;
 			song.albumPosition = songData.trackPosition;
 			song.path = songData.path as string;
 			song.album = album;
+			song.artists = songArtists;
 			await songRepository.save(song);
+
+			console.log(song);
 		}
 	}
 };
