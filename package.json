@@ -19,7 +19,8 @@
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
 		"typeorm:migrate": "typeorm migration:run",
 		"typeorm:revert": "typeorm migration:revert",
-		"typeorm:reset": "typeorm schema:drop"
+		"typeorm:drop": "typeorm schema:drop",
+		"typeorm:reset": "npm-run-all typeorm:drop typeorm:migrate"
 	},
 	"keywords": [],
 	"author": "Diego Fernandes <diego.schell.f@gmail.com>",
@@ -92,6 +93,9 @@
 	"dependencies": {
 		"@babel/runtime": "^7.14.6",
 		"app-root-path": "^3.0.0",
+		"colors": "^1.4.0",
+		"glob-promise": "^4.2.0",
+		"music-metadata": "^7.8.8",
 		"react": "^16.13.1",
 		"react-dom": "^16.13.1",
 		"react-router-dom": "^5.2.0",
