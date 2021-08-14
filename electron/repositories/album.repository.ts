@@ -16,7 +16,7 @@ export class AlbumRepository extends Repository<Album> {
 	/**
 	 * Inserts album data into the database
 	 */
-	createWithData({
+	saveWithData({
 		name,
 		releaseDate,
 		coverImagePath,
@@ -30,6 +30,26 @@ export class AlbumRepository extends Repository<Album> {
 		album.songs = songs ? songs : [];
 		album.artists = artists ? artists : [];
 		return this.save(album);
+	}
+
+	/**
+	 * Creates an album object
+	 * Does not insert into the database
+	 */
+	createWithData({
+		name,
+		releaseDate,
+		coverImagePath,
+		songs,
+		artists,
+	}: IAlbumData): Album {
+		const album = new Album();
+		album.name = name;
+		album.releaseDate = releaseDate;
+		album.coverImagePath = coverImagePath;
+		album.songs = songs ? songs : [];
+		album.artists = artists ? artists : [];
+		return album;
 	}
 
 	/**

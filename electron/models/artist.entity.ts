@@ -8,11 +8,11 @@ export class Artist extends BaseEntity {
 	@Column({ type: 'varchar' })
 	name: string;
 
-	@ManyToMany(() => Album, (album) => album.artists)
+	@ManyToMany(() => Album, (album) => album.artists, { cascade: ['insert', 'remove'] })
 	@JoinTable({ name: 'artist_album' })
 	albums: Album[];
 
-	@ManyToMany(() => Song, (song) => song.artists)
+	@ManyToMany(() => Song, (song) => song.artists, { cascade: ['insert', 'remove'] })
 	@JoinTable({ name: 'artist_song' })
 	songs: Song[];
 }

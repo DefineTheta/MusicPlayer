@@ -7,8 +7,8 @@ import { Album } from '#/models/album.entity';
 import { Artist } from '#/models/artist.entity';
 import { Song } from '#/models/song.entity';
 
-import { ArtistRepository } from '#/repositories/artist.repository';
-import { AlbumRepository } from '#/repositories/album.repository';
+import { IArtistData, ArtistRepository } from '#/repositories/artist.repository';
+import { IAlbumData, AlbumRepository } from '#/repositories/album.repository';
 
 export interface ISongData {
 	title: string;
@@ -19,12 +19,6 @@ export interface ISongData {
 	songArtists: string[];
 	date: string;
 	path?: string;
-}
-
-export interface IAlbumData {
-	artist: string;
-	releaseDate: string;
-	songs: ISongData[];
 }
 
 export const parseArtistName = (arr: string[]): string[] => {
@@ -66,9 +60,55 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 	const artistEntitiesLookup: { [key: string]: number } = {};
 	const albumEntitiesLookup: { [key: string]: number } = {};
 
+	const albumLookup = async (
+		data: IAlbumData,
+		albumArtists: IArtistData[]
+	): Promise<Album> => {
+		let entity: Album | undefined;
+		let entityIndex = albumEntitiesLookup[data.name];
+
+		if (entityIndex === undefined) {
+			entity = await albumRepository.findBy(data.name, data.releaseDate);
+		} else {
+			entity = albumEntities[entityIndex];
+		}
+
+		if (entity === undefined) entity = albumRepository.createWithData(data);
+
+		if (entityIndex === undefined) {
+			// If this is a new album add its associated artists to database
+			for (let i = 0; i < albumArtists.length; i++) {
+				const albumArtist = await artistLookup(albumArtists[i]);
+				albumArtist.albums.push(entity);
+			}
+
+			entityIndex = albumEntities.length;
+			albumEntities.push(entity);
+			albumEntitiesLookup[data.name] = entityIndex;
+		}
+
+		return entity;
+	};
+
+	const artistLookup = async (data: IArtistData): Promise<Artist> => {
+		let entity: Artist | undefined;
+		let entityIndex = artistEntitiesLookup[data.name];
+
+		if (entityIndex === undefined) entity = await artistRepository.findBy(data.name);
+		else entity = artistEntities[entityIndex];
+
+		if (entity === undefined) entity = artistRepository.createWithData(data);
+
+		if (entityIndex === undefined) {
+			entityIndex = artistEntities.length;
+			artistEntities.push(entity);
+			artistEntitiesLookup[data.name] = entityIndex;
+		}
+
+		return entity;
+	};
+
 	const filePaths = await getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
-	const albumsData: { [key: string]: IAlbumData } = {};
-	const albumsDataKeys: string[] = [];
 
 	for (let i = 0; i < filePaths.length; i++) {
 		const filePath = filePaths[i];
@@ -76,19 +116,20 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		songData.path = filePath;
 
 		const albumName = songData.albumName;
-		let albumIndex = albumEntitiesLookup[albumName];
+		const albumDate = new Date(songData.albumReleaseDate);
+		const albumArtistName = songData.albumArtist;
 
-		if (albumIndex === undefined) {
-			// TODO Have proper checking if properties actually exist
-			// TODO Have proper album cover art path
-			const album = new Album();
-			album.name = albumName;
-			album.releaseDate = new Date(songData.albumReleaseDate);
-			album.coverImagePath = '';
-
-			albumIndex = albumEntities.length;
-			albumEntities.push(album);
-		}
+		// TODO Have proper checking if properties actually exist
+		// TODO Have proper album cover art path
+		// TODO Have multiple album artist
+		const album = await albumLookup(
+			{
+				name: albumName,
+				releaseDate: albumDate,
+				coverImagePath: '',
+			},
+			[{ name: albumArtistName }]
+		);
 
 		// TODO Check if the song already exists
 		const song = new Song();
@@ -97,190 +138,15 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		song.path = songData.path as string;
 		song.album = album;
 
-		const songIndex = songEntities.length;
 		songEntities.push(song);
 
-		if (albumName !== undefined) {
-			if (albumsData[albumName] !== undefined) {
-				albumsData[albumName].songs.push(songData);
-			} else {
-				albumsDataKeys.push(albumName);
-				albumsData[albumName] = {
-					artist: songData.albumArtist,
-					releaseDate: songData.albumReleaseDate,
-					songs: [songData],
-				};
-			}
+		for (let j = 0; j < songData.songArtists.length; j++) {
+			const songArtistName = songData.songArtists[j];
+			const songArtist = await artistLookup({ name: songArtistName });
+
+			songArtist.songs.push(song);
 		}
 	}
 
-	for (let i = 0; i < filePaths.length; i++) {
-		const filePath = filePaths[i];
-		const songData = await getSongMetadata(filePath);
-		songData.path = filePath;
-
-		const albumName = songData.albumName;
-
-		if (albumName !== undefined) {
-			if (albumsData[albumName] !== undefined) {
-				albumsData[albumName].songs.push(songData);
-			} else {
-				albumsDataKeys.push(albumName);
-				albumsData[albumName] = {
-					artist: songData.albumArtist,
-					releaseDate: songData.albumReleaseDate,
-					songs: [songData],
-				};
-			}
-		}
-	}
-
-	for (let i = 0; i < albumsDataKeys.length; i++) {
-		const albumName = albumsDataKeys[i];
-		const albumData = albumsData[albumName];
-		let albumArtistEntity: Artist | undefined = artistEntities[albumData.artist];
-
-		// TODO Have proper checking if properties actually exist
-		// TODO Have proper album cover art path
-		const album = new Album();
-		album.name = albumName;
-		album.releaseDate = new Date(albumData.releaseDate);
-		album.coverImagePath = '';
-		await albumRepository.save(album);
-
-		/** Insert album artist */
-		if (albumArtistEntity === undefined) {
-			albumArtistEntity = await artistRepository.appendOrCreate({
-				name: albumData.artist,
-				albums: [album],
-			});
-		} else {
-			albumArtistEntity = await artistRepository.addAlbum(albumArtistEntity, album);
-		}
-
-		artistEntities[albumData.artist] = albumArtistEntity;
-
-		for (let j = 0; j < albumData.songs.length; j++) {
-			const songData = albumData.songs[j];
-			console.log(colors.red(songData.title));
-			console.log(colors.blue(songData.songArtists.join(', ')));
-
-			// TODO Check if the song already exists
-			const song = new Song();
-			song.title = songData.title;
-			song.albumPosition = songData.trackPosition;
-			song.path = songData.path as string;
-			song.album = album;
-			await songRepository.save(song);
-
-			for (let k = 0; k < songData.songArtists.length; k++) {
-				const songArtistName = songData.songArtists[k];
-				console.log(colors.green(songArtistName));
-				let songArtistEntity = artistEntities[songArtistName];
-
-				if (songArtistEntity === undefined) {
-					songArtistEntity = await artistRepository.appendOrCreate({
-						name: songArtistName,
-						songs: [song],
-					});
-				} else {
-					songArtistEntity = await artistRepository.addSong(songArtistEntity, song);
-				}
-
-				artistEntities[songArtistName] = songArtistEntity;
-			}
-		}
-	}
+	await artistRepository.save(artistEntities);
 };
-
-// export const parseMusicFiles = async (folderPath: string): Promise<void> => {
-// 	const connection = DatabaseManager.connection;
-// 	const albumRepository = connection.getRepository(Album);
-// 	const artistRepository = connection.getCustomRepository(ArtistRepository);
-// 	const songRepository = connection.getRepository(Song);
-
-// 	// A local cache of all new and searched artists
-// 	const artistEntities: { [key: string]: Artist } = {};
-
-// 	const filePaths = await getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
-// 	const albumsData: { [key: string]: IAlbumData } = {};
-// 	const albumsDataKeys: string[] = [];
-
-// 	for (let i = 0; i < filePaths.length; i++) {
-// 		const filePath = filePaths[i];
-// 		const songData = await getSongMetadata(filePath);
-// 		songData.path = filePath;
-
-// 		const albumName = songData.albumName;
-
-// 		if (albumName !== undefined) {
-// 			if (albumsData[albumName] !== undefined) {
-// 				albumsData[albumName].songs.push(songData);
-// 			} else {
-// 				albumsDataKeys.push(albumName);
-// 				albumsData[albumName] = {
-// 					artist: songData.albumArtist,
-// 					releaseDate: songData.albumReleaseDate,
-// 					songs: [songData],
-// 				};
-// 			}
-// 		}
-// 	}
-
-// 	for (let i = 0; i < albumsDataKeys.length; i++) {
-// 		const albumName = albumsDataKeys[i];
-// 		const albumData = albumsData[albumName];
-// 		let albumArtistEntity: Artist | undefined = artistEntities[albumData.artist];
-
-// 		// TODO Have proper checking if properties actually exist
-// 		// TODO Have proper album cover art path
-// 		const album = new Album();
-// 		album.name = albumName;
-// 		album.releaseDate = new Date(albumData.releaseDate);
-// 		album.coverImagePath = '';
-// 		await albumRepository.save(album);
-
-// 		/** Insert album artist */
-// 		if (albumArtistEntity === undefined) {
-// 			albumArtistEntity = await artistRepository.appendOrCreate({
-// 				name: albumData.artist,
-// 				albums: [album],
-// 			});
-// 		} else {
-// 			albumArtistEntity = await artistRepository.addAlbum(albumArtistEntity, album);
-// 		}
-
-// 		artistEntities[albumData.artist] = albumArtistEntity;
-
-// 		for (let j = 0; j < albumData.songs.length; j++) {
-// 			const songData = albumData.songs[j];
-// 			console.log(colors.red(songData.title));
-// 			console.log(colors.blue(songData.songArtists.join(', ')));
-
-// 			// TODO Check if the song already exists
-// 			const song = new Song();
-// 			song.title = songData.title;
-// 			song.albumPosition = songData.trackPosition;
-// 			song.path = songData.path as string;
-// 			song.album = album;
-// 			await songRepository.save(song);
-
-// 			for (let k = 0; k < songData.songArtists.length; k++) {
-// 				const songArtistName = songData.songArtists[k];
-// 				console.log(colors.green(songArtistName));
-// 				let songArtistEntity = artistEntities[songArtistName];
-
-// 				if (songArtistEntity === undefined) {
-// 					songArtistEntity = await artistRepository.appendOrCreate({
-// 						name: songArtistName,
-// 						songs: [song],
-// 					});
-// 				} else {
-// 					songArtistEntity = await artistRepository.addSong(songArtistEntity, song);
-// 				}
-
-// 				artistEntities[songArtistName] = songArtistEntity;
-// 			}
-// 		}
-// 	}
-// };

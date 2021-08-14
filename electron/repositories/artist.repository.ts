@@ -14,7 +14,7 @@ export class ArtistRepository extends Repository<Artist> {
 	/**
 	 * Inserts artist data into the database
 	 */
-	createWithData({ name, albums, songs }: IArtistData): Promise<Artist> {
+	saveWithData({ name, albums, songs }: IArtistData): Promise<Artist> {
 		const artist = new Artist();
 		artist.name = name;
 		artist.albums = albums ? albums : [];
@@ -23,9 +23,21 @@ export class ArtistRepository extends Repository<Artist> {
 	}
 
 	/**
+	 * Creates an artist object
+	 * Does not save into the database
+	 */
+	createWithData({ name, albums, songs }: IArtistData): Artist {
+		const artist = new Artist();
+		artist.name = name;
+		artist.albums = albums ? albums : [];
+		artist.songs = songs ? songs : [];
+		return artist;
+	}
+
+	/**
 	 * Finds an artist that matches a given name
 	 */
-	findByName(name: string): Promise<Artist | undefined> {
+	findBy(name: string): Promise<Artist | undefined> {
 		return this.findOne({ where: { name } });
 	}
 
@@ -37,9 +49,9 @@ export class ArtistRepository extends Repository<Artist> {
 		if (albums === undefined) albums = [];
 		if (songs === undefined) songs = [];
 
-		const artist = await this.findByName(name);
+		const artist = await this.findBy(name);
 
-		if (artist === undefined) return this.createWithData({ name, albums, songs });
+		if (artist === undefined) return this.saveWithData({ name, albums, songs });
 		else return this.addData(artist, albums, songs);
 	}
 
