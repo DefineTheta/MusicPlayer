@@ -6,6 +6,6 @@ export interface IpcRequest {
 }
 
 export interface IpcChannelInterface {
-	getName(): string;
-	handle(event: IpcMainEvent, request: IpcRequest): void;
+	init(): void;
+	register(): void;
 }

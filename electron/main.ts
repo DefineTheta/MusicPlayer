@@ -10,6 +10,7 @@ import DatabaseManager from '#/loaders/db';
 import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
 import { IpcChannelInterface } from './ipc/IpcChannelInterface';
+import { MusicLibraryChannel } from './ipc/MusicLibraryChannel';
 
 class Main {
 	private mainWindow: BrowserWindow;
@@ -21,9 +22,8 @@ class Main {
 
 		app.allowRendererProcessReuse = true;
 
-		this.registerIpcChannels(ipcChannels);
-
 		await DatabaseManager.init();
+		this.registerIpcChannels(ipcChannels);
 
 		app.whenReady().then(async () => {
 			const paths = await dialog.showOpenDialog(this.mainWindow, {
@@ -37,9 +37,10 @@ class Main {
 	}
 
 	private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {
-		ipcChannels.forEach((channel) =>
-			ipcMain.on(channel.getName(), (event, request) => channel.handle(event, request))
-		);
+		ipcChannels.forEach((channel) => {
+			channel.init();
+			channel.register();
+		});
 	}
 
 	private onWindowAllClosed() {
@@ -84,4 +85,4 @@ class Main {
 }
 
 // Here we go!
-new Main().init();
+new Main().init([new MusicLibraryChannel()]);
