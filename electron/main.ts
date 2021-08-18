@@ -9,8 +9,8 @@ import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
 import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
-import { IpcChannelInterface } from './ipc/IpcChannelInterface';
-import { MusicLibraryChannel } from './ipc/MusicLibraryChannel';
+import { IpcChannelInterface } from '../ipc/IpcChannelInterface';
+import { MusicLibraryChannel } from '../ipc/channels/MusicLibraryChannel';
 
 class Main {
 	private mainWindow: BrowserWindow;

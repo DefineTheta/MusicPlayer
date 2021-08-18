@@ -1,5 +1,5 @@
 import { ipcMain, IpcMainEvent } from 'electron';
-import { IpcChannelInterface, IpcRequest } from './IpcChannelInterface';
+import { IpcChannelInterface, IpcRequest } from '../IpcChannelInterface';
 
 import colors from 'colors';
 
@@ -18,7 +18,7 @@ export class MusicLibraryChannel implements IpcChannelInterface {
 		const subChannels = [
 			{
 				name: 'get-albums',
-				handler: this.getAlbums,
+				handler: this.getAlbums.bind(this),
 			},
 		];
 
