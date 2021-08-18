@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import installExtension, {
@@ -9,16 +9,19 @@ import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
 import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
+import { IpcChannelInterface } from './ipc/IpcChannelInterface';
 
 class Main {
 	private mainWindow: BrowserWindow;
 
-	public async init() {
+	public async init(ipcChannels: IpcChannelInterface[]) {
 		app.on('ready', this.createWindow);
 		app.on('window-all-closed', this.onWindowAllClosed);
 		// app.on('activate', this.onActivate);
 
 		app.allowRendererProcessReuse = true;
+
+		this.registerIpcChannels(ipcChannels);
 
 		await DatabaseManager.init();
 
@@ -31,6 +34,12 @@ class Main {
 				await parseMusicFiles(paths.filePaths[0]);
 			}
 		});
+	}
+
+	private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {
+		ipcChannels.forEach((channel) =>
+			ipcMain.on(channel.getName(), (event, request) => channel.handle(event, request))
+		);
 	}
 
 	private onWindowAllClosed() {
