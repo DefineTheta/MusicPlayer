@@ -5,7 +5,13 @@ export interface IpcRequest {
 	params?: string[];
 }
 
+export interface IpcStream {
+	name: string;
+	handler(event: IpcMainEvent, request: IpcRequest): void;
+}
+
 export interface IpcChannelInterface {
 	init(): void;
-	register(): void;
+	getName(): string;
+	getStreams(): IpcStream[];
 }

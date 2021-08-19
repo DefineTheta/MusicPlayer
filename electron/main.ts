@@ -11,6 +11,7 @@ import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
 import { IpcChannelInterface } from '../ipc/IpcChannelInterface';
 import { MusicLibraryChannel } from '../ipc/channels/MusicLibraryChannel';
+import { IpcService } from 'ipc/IpcService';
 
 class Main {
 	private mainWindow: BrowserWindow;
@@ -37,10 +38,7 @@ class Main {
 	}
 
 	private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {
-		ipcChannels.forEach((channel) => {
-			channel.init();
-			channel.register();
-		});
+		ipcChannels.forEach((channel) => IpcService.registerChannel(channel));
 	}
 
 	private onWindowAllClosed() {

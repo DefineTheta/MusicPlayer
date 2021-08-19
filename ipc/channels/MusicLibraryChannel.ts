@@ -1,7 +1,5 @@
 import { ipcMain, IpcMainEvent } from 'electron';
-import { IpcChannelInterface, IpcRequest } from '../IpcChannelInterface';
-
-import colors from 'colors';
+import { IpcChannelInterface, IpcRequest, IpcStream } from '../IpcChannelInterface';
 
 import DatabaseManager from '#/loaders/db';
 import { AlbumRepository } from '#/repositories/album.repository';
@@ -14,21 +12,17 @@ export class MusicLibraryChannel implements IpcChannelInterface {
 		this.albumRepository = connection.getCustomRepository(AlbumRepository);
 	}
 
-	register(): void {
-		const subChannels = [
+	getName(): string {
+		return 'Music Library';
+	}
+
+	getStreams(): IpcStream[] {
+		return [
 			{
 				name: 'get-albums',
 				handler: this.getAlbums.bind(this),
 			},
 		];
-
-		subChannels.forEach((channel) =>
-			ipcMain.on(channel.name, (event, request) => channel.handler(event, request))
-		);
-
-		if (process.env.NODE_ENV === 'development') {
-			console.log(colors.green('[IPC]'), ' Registered Music Library Channel');
-		}
 	}
 
 	private async getAlbums(event: IpcMainEvent, request: IpcRequest): Promise<void> {

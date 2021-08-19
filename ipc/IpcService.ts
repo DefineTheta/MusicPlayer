@@ -1,5 +1,7 @@
-import { IpcRenderer } from 'electron';
-import { IpcRequest } from './IpcChannelInterface';
+import { ipcMain, IpcRenderer } from 'electron';
+import { IpcChannelInterface, IpcRequest } from './IpcChannelInterface';
+
+import colors from 'colors';
 
 export class IpcService {
 	private static ipcRenderer: IpcRenderer;
@@ -9,6 +11,20 @@ export class IpcService {
 			throw new Error(`Unable to require renderer process`);
 		}
 		this.ipcRenderer = window.require('electron').ipcRenderer;
+	}
+
+	public static registerChannel(channel: IpcChannelInterface): void {
+		channel.init();
+
+		channel
+			.getStreams()
+			.forEach((stream) =>
+				ipcMain.on(stream.name, (event, request) => stream.handler(event, request))
+			);
+
+		if (process.env.NODE_ENV === 'development') {
+			console.log(colors.green('[IPC]'), ` Registered ${channel.getName()} Channel`);
+		}
 	}
 
 	public static send<T>(channel: string, request: IpcRequest = {}): Promise<T> {
