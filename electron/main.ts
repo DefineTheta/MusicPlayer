@@ -1,13 +1,13 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import mkdirp from 'mkdirp';
 import installExtension, {
 	REACT_DEVELOPER_TOOLS,
 	REDUX_DEVTOOLS,
 } from 'electron-devtools-installer';
 import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
+import FilesystemManager from '#/loaders/fs';
 import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
 import { IpcChannelInterface } from '../ipc/IpcChannelInterface';
@@ -25,13 +25,10 @@ class Main {
 		app.allowRendererProcessReuse = true;
 
 		await DatabaseManager.init();
+		await FilesystemManager.init();
 		this.registerIpcChannels(ipcChannels);
 
 		app.whenReady().then(async () => {
-			await mkdirp(
-				path.join(app.getPath('userData'), process.env.ALBUM_THUMB_PATH as string)
-			);
-
 			const paths = await dialog.showOpenDialog(this.mainWindow, {
 				properties: ['openDirectory'],
 			});
