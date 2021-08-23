@@ -37,12 +37,11 @@ export class IpcService {
 			request.responseChannel = `${channel}_response`;
 		}
 
-		const ipcRenderer = this.ipcRenderer;
-		ipcRenderer.send(channel, request);
+		this.ipcRenderer.send(channel, request);
 
 		// This method returns a promise which will be resolved when the response has arrived.
 		return new Promise((resolve) => {
-			ipcRenderer.once(request.responseChannel as string, (event, response) =>
+			this.ipcRenderer.once(request.responseChannel as string, (event, response) =>
 				resolve(response)
 			);
 		});

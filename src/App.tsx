@@ -15,12 +15,12 @@ mainElement.setAttribute('id', 'root');
 document.body.appendChild(mainElement);
 
 const App = () => {
-	useEffect(() => {
-		(async () => {
-			const a = await IpcService.send('get-albums');
-			console.log(a);
-		})();
-	}, []);
+	// useEffect(() => {
+	// 	(async () => {
+	// 		const a = await IpcService.send('get-albums');
+	// 		console.log(a);
+	// 	})();
+	// }, []);
 
 	return (
 		<>
