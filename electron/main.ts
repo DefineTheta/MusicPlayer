@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import mkdirp from 'mkdirp';
 import installExtension, {
 	REACT_DEVELOPER_TOOLS,
 	REDUX_DEVTOOLS,
@@ -27,6 +28,10 @@ class Main {
 		this.registerIpcChannels(ipcChannels);
 
 		app.whenReady().then(async () => {
+			await mkdirp(
+				path.join(app.getPath('userData'), process.env.ALBUM_THUMB_PATH as string)
+			);
+
 			const paths = await dialog.showOpenDialog(this.mainWindow, {
 				properties: ['openDirectory'],
 			});

@@ -1,5 +1,9 @@
-import { parseFile } from 'music-metadata';
+import { app } from 'electron';
+import { parseFile, selectCover } from 'music-metadata';
+import { generate as uniqueString } from 'randomstring';
 import colors from 'colors';
+import sharp from 'sharp';
+import path from 'path';
 import { getFilesWithExt } from './fs';
 
 import DatabaseManager from '#/loaders/db';
@@ -15,6 +19,7 @@ export interface ISongData {
 	albumName: string;
 	albumArtist: string;
 	albumReleaseDate: string;
+	albumImage?: Buffer;
 	trackPosition: number;
 	songArtists: string[];
 	date: string;
@@ -35,12 +40,14 @@ export const parseArtistName = (arr: string[]): string[] => {
 // TODO: Have a seperate album artist and song artist
 export const getSongMetadata = async (filePath: string): Promise<ISongData> => {
 	const metadata = await parseFile(filePath);
+	const albumCover = selectCover(metadata.common.picture);
 
 	return {
 		title: metadata.common.title as string,
 		albumName: metadata.common.album as string,
 		albumArtist: metadata.common.albumartist as string,
 		albumReleaseDate: metadata.common.date as string,
+		albumImage: albumCover?.data,
 		trackPosition: metadata.common.track.no as number,
 		songArtists: parseArtistName(metadata.common.artists as string[]),
 		date: metadata.common.date as string,
@@ -62,7 +69,8 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 
 	const albumLookup = async (
 		data: IAlbumData,
-		albumArtists: IArtistData[]
+		albumArtists: IArtistData[],
+		albumImageData?: Buffer
 	): Promise<Album> => {
 		let entity: Album | undefined;
 		let entityIndex = albumEntitiesLookup[data.name];
@@ -73,7 +81,22 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 			entity = albumEntities[entityIndex];
 		}
 
-		if (entity === undefined) entity = albumRepository.createWithData(data);
+		if (entity === undefined) {
+			if (albumImageData !== null) {
+				const albumImagePath = path.join(
+					app.getPath('userData'),
+					process.env.ALBUM_THUMB_PATH as string,
+					uniqueString(7) + '.png'
+				);
+
+				console.log(colors.green(albumImagePath));
+
+				await sharp(albumImageData).resize(320).toFile(albumImagePath);
+				data.coverImagePath = albumImagePath;
+			}
+
+			entity = albumRepository.createWithData(data);
+		}
 
 		if (entityIndex === undefined) {
 			// If this is a new album add its associated artists to database
@@ -118,6 +141,7 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		const albumName = songData.albumName;
 		const albumDate = new Date(songData.albumReleaseDate);
 		const albumArtistName = songData.albumArtist;
+		const albumImage = songData.albumImage;
 
 		// TODO Have proper checking if properties actually exist
 		// TODO Have proper album cover art path
@@ -128,7 +152,8 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 				releaseDate: albumDate,
 				coverImagePath: '',
 			},
-			[{ name: albumArtistName }]
+			[{ name: albumArtistName }],
+			albumImage
 		);
 
 		// TODO Check if the song already exists
