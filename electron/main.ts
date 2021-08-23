@@ -8,6 +8,7 @@ import installExtension, {
 import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
 import FilesystemManager from '#/loaders/fs';
+import { logger } from '#/loaders/logger';
 import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
 import { IpcChannelInterface } from '../ipc/IpcChannelInterface';
@@ -25,7 +26,11 @@ class Main {
 		app.allowRendererProcessReuse = true;
 
 		await DatabaseManager.init();
+		logger.info('Database manager initialized', 'Loader');
+
 		await FilesystemManager.init();
+		logger.info('Filesystem manager initialized', 'Loader');
+
 		this.registerIpcChannels(ipcChannels);
 
 		app.whenReady().then(async () => {
