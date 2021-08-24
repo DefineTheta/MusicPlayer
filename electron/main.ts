@@ -32,15 +32,15 @@ class Main {
 
 		this.registerIpcChannels(ipcChannels);
 
-		app.whenReady().then(async () => {
-			const paths = await dialog.showOpenDialog(this.mainWindow, {
-				properties: ['openDirectory'],
-			});
+		// app.whenReady().then(async () => {
+		// 	const paths = await dialog.showOpenDialog(this.mainWindow, {
+		// 		properties: ['openDirectory'],
+		// 	});
 
-			if (!paths.canceled) {
-				await parseMusicFiles(paths.filePaths[0]);
-			}
-		});
+		// 	if (!paths.canceled) {
+		// 		await parseMusicFiles(paths.filePaths[0]);
+		// 	}
+		// });
 	}
 
 	private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {
