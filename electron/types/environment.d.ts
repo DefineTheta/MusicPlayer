@@ -5,6 +5,7 @@ declare global {
 			ROOT_PATH: string;
 			DEV_DB_PATH: string;
 			PROD_DB_PATH: string;
+			ALBUM_THUMB_PATH: string;
 		}
 	}
 }

@@ -1,6 +1,6 @@
 import { createConnection, ConnectionOptions, Connection } from 'typeorm';
-import { app } from 'electron';
-import path from 'path';
+
+import { DEV_DB_PATH, PROD_DB_PATH } from '#/constants/paths';
 
 // Import database table entities to register with TypeORM
 import { Album } from '#/models/album.entity';
@@ -28,10 +28,7 @@ class DatabaseManager {
 	}
 }
 
-const dbPath =
-	process.env.NODE_ENV === 'development'
-		? process.env.ROOT_PATH + process.env.DEV_DB_PATH
-		: app.getPath('userData') + process.env.PROD_DB_PATH;
+const dbPath = process.env.NODE_ENV === 'development' ? DEV_DB_PATH : PROD_DB_PATH;
 
 const db = new DatabaseManager({
 	type: 'sqlite',

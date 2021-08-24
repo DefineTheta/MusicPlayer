@@ -27,6 +27,7 @@ module.exports = {
 	},
 	externals: {
 		typeorm: 'commonjs typeorm',
+		sharp: 'commonjs sharp',
 	},
 	node: {
 		__dirname: false,

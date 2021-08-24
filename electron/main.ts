@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import installExtension, {
@@ -7,7 +7,8 @@ import installExtension, {
 } from 'electron-devtools-installer';
 import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
-import { getFilesWithExt } from './helpers/fs';
+import FilesystemManager from '#/loaders/fs';
+import { logger } from '#/loaders/logger';
 import { parseMusicFiles } from './helpers/music';
 import { IpcChannelInterface } from '../ipc/IpcChannelInterface';
 import { MusicLibraryChannel } from '../ipc/channels/MusicLibraryChannel';
@@ -24,6 +25,11 @@ class Main {
 		app.allowRendererProcessReuse = true;
 
 		await DatabaseManager.init();
+		logger.info('Database manager initialized', 'Loader');
+
+		await FilesystemManager.init();
+		logger.info('Filesystem manager initialized', 'Loader');
+
 		this.registerIpcChannels(ipcChannels);
 
 		app.whenReady().then(async () => {

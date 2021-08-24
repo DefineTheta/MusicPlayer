@@ -1,6 +1,7 @@
 import { ipcMain, IpcRenderer } from 'electron';
 import { IpcChannelInterface, IpcRequest } from './IpcChannelInterface';
 
+import { logger } from '#/loaders/logger';
 import colors from 'colors';
 
 export class IpcService {
@@ -22,9 +23,7 @@ export class IpcService {
 				ipcMain.on(stream.name, (event, request) => stream.handler(event, request))
 			);
 
-		if (process.env.NODE_ENV === 'development') {
-			console.log(colors.green('[IPC]'), ` Registered ${channel.getName()} Channel`);
-		}
+		logger.info(`Registered ${channel.getName()} IPC Channel`, 'IPC');
 	}
 
 	public static send<T>(channel: string, request: IpcRequest = {}): Promise<T> {
