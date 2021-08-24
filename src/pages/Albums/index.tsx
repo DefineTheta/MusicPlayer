@@ -18,7 +18,9 @@ const AlbumsPage: React.FC = () => {
 		return (
 			<div className='w-auto h-auto bg-gray-500'>
 				{albums.map((album) => {
-					return <img src={album.coverImagePath} width='128px' key={album.id} />;
+					return (
+						<img src={'local://' + album.coverImagePath} width='128px' key={album.id} />
+					);
 				})}
 			</div>
 		);
