@@ -23,7 +23,7 @@ export class IpcService {
 				ipcMain.on(stream.name, (event, request) => stream.handler(event, request))
 			);
 
-		// logger.info(`Registered ${channel.getName()} IPC Channel`);
+		logger.info(`Registered ${channel.getName()} IPC Channel`, 'IPC');
 	}
 
 	public static send<T>(channel: string, request: IpcRequest = {}): Promise<T> {

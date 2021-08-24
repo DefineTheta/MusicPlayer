@@ -4,9 +4,9 @@ import { generate as uniqueString } from 'randomstring';
 import colors from 'colors';
 import sharp from 'sharp';
 import path from 'path';
-import { getFilesWithExt } from './fs';
 
 import DatabaseManager from '#/loaders/db';
+import FileManager from '#/loaders/fs';
 import { Album } from '#/models/album.entity';
 import { Artist } from '#/models/artist.entity';
 import { Song } from '#/models/song.entity';
@@ -83,16 +83,18 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 
 		if (entity === undefined) {
 			if (albumImageData !== null) {
-				const albumImagePath = path.join(
-					app.getPath('userData'),
-					process.env.ALBUM_THUMB_PATH as string,
-					uniqueString(7) + '.png'
-				);
+				const thumbFileName = uniqueString(7) + '.png';
 
-				console.log(colors.green(albumImagePath));
-
-				await sharp(albumImageData).resize(320).toFile(albumImagePath);
-				data.coverImagePath = albumImagePath;
+				await sharp(albumImageData)
+					.resize(320)
+					.toFile(
+						path.join(
+							app.getPath('userData'),
+							process.env.ALBUM_THUMB_PATH as string,
+							thumbFileName
+						)
+					);
+				data.coverImageName = thumbFileName;
 			}
 
 			entity = albumRepository.createWithData(data);
@@ -131,7 +133,7 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 		return entity;
 	};
 
-	const filePaths = await getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
+	const filePaths = await FileManager.getFilesWithExt(folderPath, ['mp3', 'wav', 'flac']);
 
 	for (let i = 0; i < filePaths.length; i++) {
 		const filePath = filePaths[i];
@@ -150,7 +152,7 @@ export const parseMusicFiles = async (folderPath: string): Promise<void> => {
 			{
 				name: albumName,
 				releaseDate: albumDate,
-				coverImagePath: '',
+				coverImageName: '',
 			},
 			[{ name: albumArtistName }],
 			albumImage

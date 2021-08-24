@@ -9,7 +9,6 @@ import 'reflect-metadata';
 import DatabaseManager from '#/loaders/db';
 import FilesystemManager from '#/loaders/fs';
 import { logger } from '#/loaders/logger';
-import { getFilesWithExt } from './helpers/fs';
 import { parseMusicFiles } from './helpers/music';
 import { IpcChannelInterface } from '../ipc/IpcChannelInterface';
 import { MusicLibraryChannel } from '../ipc/channels/MusicLibraryChannel';

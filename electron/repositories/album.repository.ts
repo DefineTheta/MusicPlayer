@@ -6,7 +6,7 @@ import { Song } from '#/models/song.entity';
 export interface IAlbumData {
 	name: string;
 	releaseDate: Date;
-	coverImagePath: string;
+	coverImageName: string;
 	songs?: Song[];
 	artists?: Artist[];
 }
@@ -19,14 +19,14 @@ export class AlbumRepository extends Repository<Album> {
 	saveWithData({
 		name,
 		releaseDate,
-		coverImagePath,
+		coverImageName,
 		songs,
 		artists,
 	}: IAlbumData): Promise<Album> {
 		const album = new Album();
 		album.name = name;
 		album.releaseDate = releaseDate;
-		album.coverImagePath = coverImagePath;
+		album.coverImageName = coverImageName;
 		album.songs = songs ? songs : [];
 		album.artists = artists ? artists : [];
 		return this.save(album);
@@ -39,14 +39,14 @@ export class AlbumRepository extends Repository<Album> {
 	createWithData({
 		name,
 		releaseDate,
-		coverImagePath,
+		coverImageName,
 		songs,
 		artists,
 	}: IAlbumData): Album {
 		const album = new Album();
 		album.name = name;
 		album.releaseDate = releaseDate;
-		album.coverImagePath = coverImagePath;
+		album.coverImageName = coverImageName;
 		album.songs = songs ? songs : [];
 		album.artists = artists ? artists : [];
 		return album;

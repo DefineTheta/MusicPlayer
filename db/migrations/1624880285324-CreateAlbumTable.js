@@ -22,7 +22,7 @@ module.exports = class CreateAlbumTable1624880285324 {
 						type: 'date',
 					},
 					{
-						name: 'cover_image_path',
+						name: 'cover_image_name',
 						type: 'text',
 					},
 					{
