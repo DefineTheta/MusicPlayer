@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IpcService } from 'ipc/IpcService';
 import { IAlbum } from 'types/music';
 
+import AlbumIcon from '@material-ui/icons/Album';
 import AlbumCard from './components/AlbumCard';
 
 import './style.scss';
@@ -21,8 +22,8 @@ const AlbumsPage: React.FC = () => {
 	} else {
 		return (
 			<div className='w-auto h-auto px-6 py-4'>
-				<h1 className='py-2 text-6xl font-semibold'>Albums</h1>
-				<div className='-mr-2 grid albums__container'>
+				<h1 className='py-2 ml-4 text-7xl font-bold'>ALBUMS</h1>
+				<div className='mt-6 -mr-2 grid albums__container'>
 					{albums.map((album) => (
 						<AlbumCard
 							key={album.id}
