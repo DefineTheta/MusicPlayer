@@ -3,4 +3,10 @@ export interface IAlbum {
 	name: string;
 	releaseData: Date;
 	coverImagePath: string;
+	artists: IArtist[];
+}
+
+export interface IArtist {
+	id: number;
+	name: string;
 }

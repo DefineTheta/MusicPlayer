@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IpcService } from 'ipc/IpcService';
 import { IAlbum } from 'types/music';
 
-import AlbumItem from './components/AlbumItem';
+import AlbumCard from './components/AlbumCard';
 
 import './style.scss';
 
@@ -24,10 +24,11 @@ const AlbumsPage: React.FC = () => {
 				<h1 className='py-2 text-6xl font-semibold'>Albums</h1>
 				<div className='-mr-2 grid albums__container'>
 					{albums.map((album) => (
-						<AlbumItem
+						<AlbumCard
 							key={album.id}
 							name={album.name}
 							coverImagePath={album.coverImagePath}
+							artists={album.artists}
 						/>
 					))}
 				</div>
