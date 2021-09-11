@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog, protocol } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import installExtension, {
@@ -30,17 +30,32 @@ class Main {
 		await FilesystemManager.init();
 		logger.info('Filesystem manager initialized', 'Loader');
 
+		this.registerFileProtocols();
 		this.registerIpcChannels(ipcChannels);
 
-		app.whenReady().then(async () => {
-			const paths = await dialog.showOpenDialog(this.mainWindow, {
-				properties: ['openDirectory'],
-			});
+		// app.whenReady().then(async () => {
+		// 	const paths = await dialog.showOpenDialog(this.mainWindow, {
+		// 		properties: ['openDirectory'],
+		// 	});
 
-			if (!paths.canceled) {
-				await parseMusicFiles(paths.filePaths[0]);
+		// 	if (!paths.canceled) {
+		// 		await parseMusicFiles(paths.filePaths[0]);
+		// 	}
+		// });
+	}
+
+	private registerFileProtocols() {
+		protocol.registerFileProtocol('local', (request, callback) => {
+			const url = request.url.replace('local://', '');
+
+			try {
+				return callback(decodeURIComponent(url));
+			} catch (error) {
+				console.error(error);
 			}
 		});
+
+		logger.info('File protocols registered', 'Boot');
 	}
 
 	private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {

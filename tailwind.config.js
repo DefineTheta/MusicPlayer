@@ -4,6 +4,9 @@ module.exports = {
 	theme: {
 		extend: {
 			colors: {
+				fontSize: {
+					medium: ['0.9375rem', '1.275rem'],
+				},
 				black: {
 					darkest: '#181818',
 					dark: '#121212',
