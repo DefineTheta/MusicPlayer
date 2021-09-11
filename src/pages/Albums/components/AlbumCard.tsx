@@ -12,7 +12,7 @@ interface AlbumCardProps {
 
 const AlbumCard: React.FC<AlbumCardProps> = (props) => {
 	return (
-		<div className='mr-6 mb-6 p-4 pb-6 bg-black-darkest hover:bg-black-light cursor-pointer rounded'>
+		<div className='mr-6 mb-6 p-4 pb-6 bg-black-darkest hover:bg-black-light cursor-pointer rounded albums__card'>
 			<div className='relative'>
 				<img src={fileURLtoProtocol(props.coverImagePath)} />
 				<div className='rounded-full albums__card__play-icon'>
