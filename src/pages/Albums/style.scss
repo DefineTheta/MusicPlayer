@@ -1,3 +1,27 @@
 .albums__container {
 	grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
 }
+
+.albums__card__play-icon {
+	width: 2.5rem;
+	height: 2.5rem;
+	position: absolute;
+	bottom: 0.25rem;
+	right: 0.25rem;
+	overflow: hidden;
+	background-color: #1db954;
+	box-shadow: 0 8px 8px rgba(0, 0, 0, 0.3);
+
+	& > button {
+		width: 2.5rem;
+		height: 2.5rem;
+	}
+
+	& svg {
+		width: 1rem;
+		height: 1rem;
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
