@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import SideBar from '@/components/SideBar';
 import BottomBar from '@/components/BottomBar';
 
 import AlbumsPage from '@/pages/Albums';
+import AlbumPage from '@/pages/Album';
 
 import './styles/main.scss';
-import { IpcService } from 'ipc/IpcService';
 
 const mainElement = document.createElement('div');
 mainElement.setAttribute('id', 'root');
@@ -21,7 +21,8 @@ const App = () => {
 				<SideBar />
 				<Router>
 					<div className='row-start-1 col-start-2 bg-black-dark'>
-						<AlbumsPage />
+						<Route exact path='/album/:id' component={AlbumPage} />
+						<Route component={AlbumsPage} />
 					</div>
 				</Router>
 				<BottomBar />

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { IpcService } from 'ipc/IpcService';
 import { IAlbum } from 'types/music';
 
-import AlbumIcon from '@material-ui/icons/Album';
 import AlbumCard from './components/AlbumCard';
 
 import './style.scss';
@@ -27,6 +26,7 @@ const AlbumsPage: React.FC = () => {
 					{albums.map((album) => (
 						<AlbumCard
 							key={album.id}
+							id={album.id}
 							name={album.name}
 							coverImagePath={album.coverImagePath}
 							artists={album.artists}

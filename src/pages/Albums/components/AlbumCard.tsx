@@ -1,18 +1,24 @@
 import React from 'react';
-import PlayCircleFilledWhiteIcon from '@material-ui/icons/PlayCircleFilledWhite';
+import { useHistory } from 'react-router-dom';
 
 import { fileURLtoProtocol } from '@/helpers/misc';
 import { IArtist } from 'types/music';
 
 interface AlbumCardProps {
+	id: number;
 	name: string;
 	coverImagePath: string;
 	artists: IArtist[];
 }
 
 const AlbumCard: React.FC<AlbumCardProps> = (props) => {
+	const history = useHistory();
+
 	return (
-		<div className='mr-6 mb-6 p-4 pb-6 bg-black-darkest hover:bg-black-light cursor-pointer rounded albums__card'>
+		<div
+			className='mr-6 mb-6 p-4 pb-6 bg-black-darkest hover:bg-black-light cursor-pointer rounded albums__card'
+			onClick={() => history.push(`/album/${props.id}`)}
+		>
 			<div className='relative'>
 				<img src={fileURLtoProtocol(props.coverImagePath)} />
 				<div className='rounded-full albums__card__play-icon'>

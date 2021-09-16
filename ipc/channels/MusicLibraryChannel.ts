@@ -1,18 +1,22 @@
 import path from 'path';
+import { Repository } from 'typeorm';
 import { IpcMainEvent } from 'electron';
 import { IpcChannelInterface, IpcRequest, IpcStream } from '../IpcChannelInterface';
 
 import DatabaseManager from '#/loaders/db';
 import { AlbumRepository } from '#/repositories/album.repository';
+import { Song } from '#/models/song.entity';
 import { IAlbum, IArtist } from 'types/music';
 import { ALBUM_THUMB_PATH } from '#/constants/paths';
 
 export class MusicLibraryChannel implements IpcChannelInterface {
 	private albumRepository: AlbumRepository;
+	private songRepository: Repository<Song>;
 
 	init(): void {
 		const connection = DatabaseManager.connection;
 		this.albumRepository = connection.getCustomRepository(AlbumRepository);
+		this.songRepository = connection.getRepository(Song);
 	}
 
 	getName(): string {
@@ -24,6 +28,10 @@ export class MusicLibraryChannel implements IpcChannelInterface {
 			{
 				name: 'get-albums',
 				handler: this.getAlbums.bind(this),
+			},
+			{
+				name: 'get-album-songs',
+				handler: this.getAlbumSongs.bind(this),
 			},
 		];
 	}
@@ -49,5 +57,15 @@ export class MusicLibraryChannel implements IpcChannelInterface {
 		}
 
 		event.reply(request.responseChannel, albums);
+	}
+
+	private async getAlbumSongs(event: IpcMainEvent, request: IpcRequest): Promise<void> {
+		const result = await this.songRepository.find({
+			where: { album: request.params?.albumId },
+		});
+
+		console.log(result);
+
+		event.reply(request.responseChannel, result);
 	}
 }
