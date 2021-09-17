@@ -7,7 +7,7 @@ const AlbumPage: React.FC = () => {
 
 	useEffect(() => {
 		const fetchSongs = async () => {
-			await IpcService.send('get-albums');
+			await IpcService.send('get-album-songs');
 		};
 
 		fetchSongs();
