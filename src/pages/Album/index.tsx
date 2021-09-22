@@ -18,7 +18,15 @@ const AlbumPage: React.FC = () => {
 	return (
 		<div>
 			{songs?.map((song) => {
-				return <div key={song.id}>{song.title}</div>;
+				return (
+					<div key={song.id} className='flex items-center'>
+						<span>{song.albumPosition}</span>
+						<div className='flex flex-col'>
+							<span>{song.title}</span>
+							<span>{song.artists[0].name}</span>
+						</div>
+					</div>
+				);
 			})}
 		</div>
 	);
