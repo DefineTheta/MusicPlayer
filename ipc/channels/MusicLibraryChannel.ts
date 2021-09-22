@@ -6,7 +6,8 @@ import { IpcChannelInterface, IpcRequest, IpcStream } from '../IpcChannelInterfa
 import DatabaseManager from '#/loaders/db';
 import { AlbumRepository } from '#/repositories/album.repository';
 import { Song } from '#/models/song.entity';
-import { IAlbum, IArtist } from 'types/music';
+import { Album } from '#/models/album.entity';
+import { IAlbum, IArtist, ISong } from 'types/music';
 import { ALBUM_THUMB_PATH } from '#/constants/paths';
 
 export class MusicLibraryChannel implements IpcChannelInterface {
@@ -36,16 +37,20 @@ export class MusicLibraryChannel implements IpcChannelInterface {
 		];
 	}
 
+	private getEntityArtists(entity: Album | Song): IArtist[] {
+		return entity.artists.map((artist) => ({
+			id: artist.id,
+			name: artist.name,
+		}));
+	}
+
 	private async getAlbums(event: IpcMainEvent, request: IpcRequest): Promise<void> {
 		const result = await this.albumRepository.find({ relations: ['artists'] });
 		const albums: IAlbum[] = [];
 
 		for (let i = 0; i < result.length; i++) {
 			const album = result[i];
-			const artists: IArtist[] = album.artists.map((artist) => ({
-				id: artist.id,
-				name: artist.name,
-			}));
+			const artists = this.getEntityArtists(album);
 
 			albums.push({
 				id: album.id,
@@ -62,10 +67,24 @@ export class MusicLibraryChannel implements IpcChannelInterface {
 	private async getAlbumSongs(event: IpcMainEvent, request: IpcRequest): Promise<void> {
 		const result = await this.songRepository.find({
 			where: { album: request.params?.albumId },
+			relations: ['artists'],
 		});
+		const songs: ISong[] = [];
 
-		console.log(result);
+		for (let i = 0; i < result.length; i++) {
+			const song = result[i];
+			const artists = this.getEntityArtists(song);
 
-		event.reply(request.responseChannel, result);
+			songs.push({
+				id: song.id,
+				title: song.title,
+				albumPosition: song.albumPosition,
+				path: song.path,
+				albumId: Number(request.params?.albumId),
+				artists,
+			});
+		}
+
+		event.reply(request.responseChannel, songs);
 	}
 }

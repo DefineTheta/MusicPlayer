@@ -1,6 +1,12 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, useHistory } from 'react-router-dom';
+import {
+	BrowserRouter as Router,
+	Switch,
+	Route,
+	Redirect,
+	useHistory,
+} from 'react-router-dom';
 
 import Header from '@/components/Header';
 import SideBar from '@/components/SideBar';
@@ -26,7 +32,8 @@ const App = () => {
 					<div className='flex flex-col row-start-1 col-start-2 bg-black-dark'>
 						<Header />
 						<Switch>
-							<Route exact path='/album/:id' component={AlbumPage} />
+							<Redirect from='/album/' to='/' exact />
+							<Route path='/album/:id' component={AlbumPage} exact />
 							<Route path='/' component={AlbumsPage} />
 						</Switch>
 					</div>

@@ -10,3 +10,12 @@ export interface IArtist {
 	id: number;
 	name: string;
 }
+
+export interface ISong {
+	id: number;
+	title: string;
+	albumPosition: number;
+	path: string;
+	albumId: number;
+	artists: IArtist[];
+}
