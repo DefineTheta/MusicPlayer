@@ -2,11 +2,18 @@ module.exports = {
 	purge: [],
 	darkMode: false, // or 'media' or 'class'
 	theme: {
+		fontSize: {
+			sm: '0.8rem',
+			m: '0.85rem',
+		},
 		extend: {
+			textColor: {
+				secondary: 'rgba(255, 255, 255, 0.75)',
+			},
+			borderColor: {
+				faint: 'rgba(255, 255, 255, 0.2)',
+			},
 			colors: {
-				fontSize: {
-					medium: ['0.9375rem', '1.275rem'],
-				},
 				black: {
 					darkest: '#181818',
 					dark: '#121212',

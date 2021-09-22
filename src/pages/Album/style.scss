@@ -1,0 +1,40 @@
+.song-detail-row {
+	&:hover {
+		@apply bg-black-light;
+		transition: background-color 0.2s ease-in-out;
+
+		& .song-detail-row__positon {
+			display: none;
+		}
+
+		& .song-detail-row__play {
+			display: block;
+			margin: 0rem auto;
+		}
+
+		& .song-detail-row__artist {
+			@apply text-white;
+		}
+	}
+
+	&__play {
+		display: none;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	&__artist {
+		&:hover {
+			text-decoration: underline;
+		}
+
+		& + & {
+			&::before {
+				content: ',\00a0';
+				display: inline-block;
+				text-decoration: none;
+				@apply text-secondary !important;
+			}
+		}
+	}
+}
